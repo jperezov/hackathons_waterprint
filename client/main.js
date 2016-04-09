@@ -5,6 +5,8 @@ import './main.html';
 
 var MAP_ZOOM = 15;
 
+var Waterprint = new Mongo.Collection('waterprint');
+
 Meteor.startup(function () {
     GoogleMaps.load({
         libraries: 'visualization'
@@ -14,47 +16,58 @@ Meteor.startup(function () {
 Template.waterprint.onCreated(function () {
     var self = this;
 
-    GoogleMaps.ready('map', function (map) {
-        var marker;
-        var heatmap;
+    $.get('http://api-m2x.att.com/v2/devices/e4222526bf22258c7289fcdc8e22d1c9/values.json',
+        function (data) {
+            data = data.values;
+            var points = [];
+            var loc;
+            GoogleMaps.ready('map', function (map) {
+                var marker;
+                var heatmap;
 
-        // Create and move the marker when latLng changes.
-        self.autorun(function () {
-            var latLng = Geolocation.latLng();
-            if (!latLng)
-                return;
+                // Create and move the marker when latLng changes.
+                self.autorun(function () {
+                    var latLng = Geolocation.latLng();
+                    if (!latLng)
+                        return;
 
-            // If the marker doesn't yet exist, create it.
-            if (!marker) {
-                marker = new google.maps.Marker({
-                    position: new google.maps.LatLng(latLng.lat, latLng.lng),
-                    map: map.instance
-                });
-            }
-            // The marker already exists, so we'll just change its position.
-            else {
-                marker.setPosition(latLng);
-            }
-            heatmap = new google.maps.visualization.HeatmapLayer({
-                data: getPoints(latLng),
-                radius: 20
-            });
-            heatmap.setMap(map.instance);
-
-            // Center and zoom the map view onto the current position.
-            map.instance.setCenter(marker.getPosition());
-            map.instance.setZoom(MAP_ZOOM);
-
-            function getPoints(latLng) {
-                return [
-                    {
-                        location: new google.maps.LatLng(latLng.lat, latLng.lng),
-                        weight: 10
+                    // If the marker doesn't yet exist, create it.
+                    if (!marker) {
+                        marker = new google.maps.Marker({
+                            position: new google.maps.LatLng(latLng.lat, latLng.lng),
+                            map: map.instance
+                        });
                     }
-                ]
-            }
+                    // The marker already exists, so we'll just change its position.
+                    else {
+                        marker.setPosition(latLng);
+                    }
+
+                    // Center and zoom the map view onto the current position.
+                    map.instance.setCenter(marker.getPosition());
+                    map.instance.setZoom(MAP_ZOOM);
+
+                    for (var i in data) {
+                        if (data.hasOwnProperty(i)) {
+                            if (!data[i].values) continue;
+                            if (!data[i].values.location) continue;
+                            loc = data[i].values.location.split(/,/);
+                            points.push({
+                                location: new google.maps.LatLng(loc[0], loc[1]),
+                                weight: 30
+                            });
+                        }
+                    }
+                    console.log(points, data);
+
+                    heatmap = new google.maps.visualization.HeatmapLayer({
+                        data: points,
+                        radius: 20
+                    });
+                    heatmap.setMap(map.instance);
+                });
+            });
         });
-    });
 });
 
 Template.waterprint.onRendered(function () {
@@ -94,7 +107,7 @@ Template.graph.onRendered(function () {
     var $body = $('body');
     var $graphContainer = $('.graph-container');
     $slider.swipe({
-        swipe: function(event, direction, distance, duration, fingerCount, fingerData) {
+        swipe: function (event, direction, distance, duration, fingerCount, fingerData) {
             if (direction === 'up') {
                 $body.addClass('full-view');
                 $chevron.removeClass('fa-chevron-up');
@@ -106,7 +119,7 @@ Template.graph.onRendered(function () {
             }
         },
         //Default is 75px, set to 0 for demo so any distance triggers swipe
-        threshold:0
+        threshold: 0
     });
 
 
@@ -124,7 +137,7 @@ Template.graph.onRendered(function () {
             title: '',
             width: window.innerWidth,
             height: window.innerHeight * 0.1 - 20,
-            legend: { position: 'none' },
+            legend: {position: 'none'},
             titlePosition: 'none',
             backgroundColor: 'transparent',
             hAxis: {
@@ -148,4 +161,7 @@ Template.graph.onRendered(function () {
 });
 
 Template.graph.events({
+    waterprint: function () {
+        return Waterprint.find();
+    }
 });
