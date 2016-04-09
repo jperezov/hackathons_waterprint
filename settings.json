@@ -1,6 +1,0 @@
-{
-  "public": {
-    "environment": "production",
-    "port": 80
-  }
-}
