@@ -1,0 +1,55 @@
+* {
+    box-sizing: border-box;
+}
+html, body{
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    font-family: "Arial", sans-serif;
+}
+.map-container {
+    position: absolute;
+    top: 0;
+    width: 800px;
+    max-width: 100%;
+    height: 800px;
+    max-height: 90%;
+    transition: max-height 0.8s;
+}
+.full-view .map-container,
+.full-view .graph-container {
+    max-height: 50%;
+}
+.graph-container {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #3b4147;
+    height: 500px;
+    max-height: 10%;
+    transition: max-height 0.8s;
+}
+.chart-title {
+    color: white;
+    text-align: center;
+    height: 20px;
+    padding-top: 5px;
+}
+#slider {
+    z-index: 99999;
+    position: absolute;
+    top: -25px;
+    right: 50%;
+    margin-right: -40px;
+    margin-bottom: -1px;
+    padding-top: 5px;
+    width: 80px;
+    height: 30px;
+    color: white;
+    background: #3b4147;
+    text-align: center;
+    border-top-right-radius: 4px;
+    border-top-left-radius: 4px;
+    cursor: pointer;
+}

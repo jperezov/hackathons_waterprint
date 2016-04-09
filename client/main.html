@@ -1,0 +1,28 @@
+<head>
+  <title>simple</title>
+</head>
+
+<body>
+  {{> waterprint}}
+  {{> graph}}
+</body>
+
+<template name="waterprint">
+  <div class="map-container">
+    {{#unless geolocationError}}
+      {{> googleMap name="map" options=mapOptions}}
+    {{else}}
+      Geolocation failed: {{geolocationError}}
+    {{/unless}}
+  </div>
+</template>
+
+<template name="graph">
+  <div class="graph-container">
+    <div id="slider">
+      <i class="fa fa-chevron-up"></i>
+    </div>
+    <div class="chart-title">WATER HEALTH</div>
+    <div id="water-health"></div>
+  </div>
+</template>
